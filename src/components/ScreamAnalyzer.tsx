@@ -125,10 +125,17 @@ export default function ScreamAnalyzer() {
           {/* Volume bar */}
           <div className="space-y-2">
             <div className="flex justify-between text-xs text-zinc-500">
-              <span>Volume</span>
+              <span id="volume-label">Volume</span>
               <span>{volume}%</span>
             </div>
-            <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+            <div
+              role="progressbar"
+              aria-labelledby="volume-label"
+              aria-valuenow={volume}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              className="h-2 rounded-full bg-zinc-800 overflow-hidden"
+            >
               <div
                 className="h-full rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-orange-500 transition-all duration-75"
                 style={{ width: `${volumeBarWidth}%` }}
@@ -149,7 +156,7 @@ export default function ScreamAnalyzer() {
           </div>
 
           {/* Intensity feedback */}
-          <div className="text-center">
+          <div className="text-center" aria-live="polite" aria-atomic="true">
             {volume < 20 && (
               <p className="text-zinc-500 text-sm">Whisper detected... go louder!</p>
             )}

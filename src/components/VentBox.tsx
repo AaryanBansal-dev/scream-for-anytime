@@ -19,6 +19,7 @@ export default function VentBox() {
   const [text, setText] = useState('');
   const [entries, setEntries] = useState<Array<{ id: string; content: string; type: string }>>([]);
   const [showEntries, setShowEntries] = useState(false);
+  const [burnAnimation, setBurnAnimation] = useState(false);
   
   const {
     isListening,
@@ -73,129 +74,148 @@ export default function VentBox() {
   }, [isListening, startListening, stopListening]);
 
   const handleBurn = useCallback(() => {
-    // Animate and clear
-    setText('');
-    clearTranscript();
+    setBurnAnimation(true);
+    setTimeout(() => {
+      setText('');
+      clearTranscript();
+      setBurnAnimation(false);
+    }, 500);
   }, [clearTranscript]);
 
   return (
-    <div className="bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-xl p-6 shadow-lg">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-purple-800 dark:text-purple-200 mb-2">
-          📝 Vent Box
+    <div className="glass-card rounded-3xl p-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-xl font-semibold text-white mb-2">
+          Vent Box
         </h2>
-        <p className="text-sm text-purple-600/70 dark:text-purple-300/70">
-          Type or speak your frustrations. They stay private.
+        <p className="text-sm text-zinc-500">
+          Type or speak your frustrations. Everything stays private.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700 rounded-lg p-3 mb-4">
-          <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
 
       {/* Text area */}
-      <div className="relative mb-4">
+      <div className="relative mb-6">
         <textarea
           value={displayText}
           onChange={handleTextChange}
-          placeholder="Let it all out... Type or use voice input..."
+          placeholder="Let it all out..."
           className={`
-            w-full h-40 p-4 rounded-lg resize-none
-            bg-white/80 dark:bg-black/30
-            border-2 transition-colors duration-300
+            w-full h-48 p-5 rounded-2xl resize-none
+            bg-zinc-900/50 border transition-all duration-300
             ${isListening 
-              ? 'border-purple-500 ring-2 ring-purple-300' 
-              : 'border-purple-200 dark:border-purple-700'
+              ? 'border-violet-500/50 ring-2 ring-violet-500/20' 
+              : 'border-white/10 hover:border-white/20'
             }
-            focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-300
-            text-gray-800 dark:text-gray-200
-            placeholder-gray-400 dark:placeholder-gray-500
+            ${burnAnimation ? 'opacity-0 scale-95' : 'opacity-100 scale-100'}
+            focus:outline-none focus:border-violet-500/50 focus:ring-2 focus:ring-violet-500/20
+            text-white placeholder-zinc-600 text-base
           `}
         />
         
         {isListening && (
-          <div className="absolute top-2 right-2 flex items-center gap-2 bg-purple-500 text-white px-3 py-1 rounded-full text-sm animate-pulse">
+          <div className="absolute top-4 right-4 flex items-center gap-2 px-3 py-1.5 rounded-full bg-violet-500/20 border border-violet-500/30">
             <span className="w-2 h-2 bg-red-400 rounded-full animate-pulse" />
-            Listening...
+            <span className="text-xs text-violet-300">Listening</span>
           </div>
         )}
       </div>
 
       {/* Action buttons */}
-      <div className="flex flex-wrap gap-3 mb-4">
+      <div className="flex flex-wrap gap-3 mb-6">
         {isSupported && (
           <button
             onClick={toggleVoice}
             className={`
-              flex items-center gap-2 px-4 py-2 rounded-lg font-medium
+              flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
               transition-all duration-300
               ${isListening
-                ? 'bg-red-500 text-white hover:bg-red-600'
-                : 'bg-purple-500 text-white hover:bg-purple-600'
+                ? 'bg-red-500/20 text-red-400 border border-red-500/30 hover:bg-red-500/30'
+                : 'bg-violet-500/20 text-violet-400 border border-violet-500/30 hover:bg-violet-500/30'
               }
             `}
           >
-            {isListening ? '⏹️ Stop' : '🎙️ Speak'}
+            {isListening ? '⏹ Stop' : '🎙 Speak'}
           </button>
         )}
 
         <button
           onClick={handleSaveVent}
           disabled={!displayText.trim()}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-green-500 text-white hover:bg-green-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
+            bg-emerald-500/20 text-emerald-400 border border-emerald-500/30
+            hover:bg-emerald-500/30 disabled:opacity-30 disabled:cursor-not-allowed
+            transition-all duration-300"
         >
-          💾 Save to Memory
+          💾 Save
         </button>
 
         <button
           onClick={handleBurn}
           disabled={!displayText.trim()}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg font-medium bg-orange-500 text-white hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-5 py-2.5 rounded-xl font-medium text-sm
+            bg-orange-500/20 text-orange-400 border border-orange-500/30
+            hover:bg-orange-500/30 disabled:opacity-30 disabled:cursor-not-allowed
+            transition-all duration-300"
         >
-          🔥 Burn It
+          🔥 Burn
         </button>
       </div>
 
       {/* Saved entries toggle */}
-      <div className="border-t border-purple-200 dark:border-purple-700 pt-4">
+      <div className="border-t border-white/10 pt-6">
         <button
           onClick={() => {
             setEntries(getVentEntries());
             setShowEntries(!showEntries);
           }}
-          className="text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-200 font-medium"
+          className="flex items-center gap-2 text-sm text-zinc-400 hover:text-white transition-colors"
         >
-          {showEntries ? '🔽 Hide Saved Vents' : '▶️ View Saved Vents'} ({entries.length})
+          <span className={`transition-transform ${showEntries ? 'rotate-90' : ''}`}>▶</span>
+          Saved Vents ({entries.length})
         </button>
 
         {showEntries && entries.length > 0 && (
-          <div className="mt-4 space-y-2">
+          <div className="mt-4 space-y-3">
             {entries.map((entry) => (
               <div
                 key={entry.id}
-                className="bg-white/50 dark:bg-black/20 rounded-lg p-3 text-sm text-gray-700 dark:text-gray-300"
+                className="p-4 rounded-xl bg-zinc-800/50 border border-white/5"
               >
-                <span className="mr-2">{entry.type === 'spoken' ? '🎙️' : '⌨️'}</span>
-                {entry.content}
+                <div className="flex items-start gap-3">
+                  <span className="text-lg">{entry.type === 'spoken' ? '🎙' : '⌨️'}</span>
+                  <p className="text-sm text-zinc-300 leading-relaxed">{entry.content}</p>
+                </div>
               </div>
             ))}
             
             <button
               onClick={handleClearAll}
-              className="text-red-500 hover:text-red-700 text-sm font-medium"
+              className="text-red-400/70 hover:text-red-400 text-sm transition-colors"
             >
-              🗑️ Clear All Vents
+              Clear all
             </button>
           </div>
         )}
+
+        {showEntries && entries.length === 0 && (
+          <p className="mt-4 text-sm text-zinc-600">No saved vents yet.</p>
+        )}
       </div>
 
-      {/* Privacy notice */}
-      <p className="text-xs text-center text-purple-600/50 dark:text-purple-300/50 mt-6">
-        🔒 All vents are stored in memory only. Page refresh erases everything.
-      </p>
+      {/* Privacy badge */}
+      <div className="mt-8 flex justify-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-xs text-emerald-400">In-memory only • Refresh to erase</span>
+        </div>
+      </div>
     </div>
   );
 }

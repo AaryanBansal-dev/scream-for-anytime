@@ -35,12 +35,12 @@ export default function StressToy() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [hitCount, setHitCount] = useState(0);
-  const [message, setMessage] = useState('Click/tap to punch! 👊');
+  const [message, setMessage] = useState('Click or tap the target');
   const particlesRef = useRef<Particle[]>([]);
   const targetRef = useRef<Target>({
     x: 200,
     y: 150,
-    radius: 60,
+    radius: 50,
     hits: 0,
     shake: 0,
     emotion: '😐',
@@ -49,13 +49,13 @@ export default function StressToy() {
 
   // Create explosion particles
   const createParticles = useCallback((x: number, y: number) => {
-    const colors = ['#ff6b6b', '#ffd93d', '#6bcb77', '#4d96ff', '#ff66c4'];
+    const colors = ['#f43f5e', '#f97316', '#eab308', '#22c55e', '#3b82f6', '#a855f7'];
     const newParticles: Particle[] = [];
-    const count = 15 + Math.floor(Math.random() * 10);
+    const count = 12 + Math.floor(Math.random() * 8);
     
     for (let i = 0; i < count; i++) {
       const angle = (Math.PI * 2 * i) / count + Math.random() * 0.5;
-      const speed = 3 + Math.random() * 5;
+      const speed = 2 + Math.random() * 4;
       newParticles.push({
         x,
         y,
@@ -63,7 +63,7 @@ export default function StressToy() {
         vy: Math.sin(angle) * speed,
         life: 1,
         color: colors[Math.floor(Math.random() * colors.length)],
-        size: 5 + Math.random() * 10,
+        size: 4 + Math.random() * 8,
       });
     }
     
@@ -87,7 +87,7 @@ export default function StressToy() {
     if (distance <= target.radius + 20) {
       // Hit!
       target.hits++;
-      target.shake = 15;
+      target.shake = 12;
       setHitCount(target.hits);
       createParticles(x, y);
 
@@ -99,18 +99,18 @@ export default function StressToy() {
       if (target.hits < 5) {
         setMessage('Keep going! 💪');
       } else if (target.hits < 15) {
-        setMessage("That's it! Let it out! 🔥");
+        setMessage("That's it! Let it out!");
       } else if (target.hits < 30) {
         setMessage('UNLEASH YOUR FURY! ⚡');
       } else if (target.hits < 50) {
         setMessage('MAXIMUM POWER! 💥');
       } else {
-        setMessage('YOU ARE UNSTOPPABLE! 🌟');
+        setMessage('UNSTOPPABLE! 🌟');
       }
     } else {
       // Missed
       createParticles(x, y);
-      setMessage('Almost! Try again! 🎯');
+      setMessage('Try again! 🎯');
     }
   }, [createParticles]);
 
@@ -139,7 +139,7 @@ export default function StressToy() {
     const resizeCanvas = () => {
       const rect = container.getBoundingClientRect();
       canvas.width = rect.width;
-      canvas.height = 300;
+      canvas.height = 280;
       targetRef.current.x = canvas.width / 2;
       targetRef.current.y = canvas.height / 2;
     };
@@ -150,12 +150,22 @@ export default function StressToy() {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      // Draw background
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#1a1a2e');
-      gradient.addColorStop(1, '#16213e');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      // Draw subtle grid background
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.lineWidth = 1;
+      const gridSize = 30;
+      for (let x = 0; x < canvas.width; x += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, canvas.height);
+        ctx.stroke();
+      }
+      for (let y = 0; y < canvas.height; y += gridSize) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(canvas.width, y);
+        ctx.stroke();
+      }
 
       // Update and draw target
       const target = targetRef.current;
@@ -168,29 +178,38 @@ export default function StressToy() {
       // Draw target glow
       const glowGradient = ctx.createRadialGradient(
         target.x + shakeX, target.y + shakeY, target.radius * 0.5,
-        target.x + shakeX, target.y + shakeY, target.radius * 1.5
+        target.x + shakeX, target.y + shakeY, target.radius * 2
       );
-      glowGradient.addColorStop(0, 'rgba(255, 107, 107, 0.3)');
-      glowGradient.addColorStop(1, 'rgba(255, 107, 107, 0)');
+      glowGradient.addColorStop(0, 'rgba(244, 63, 94, 0.2)');
+      glowGradient.addColorStop(1, 'rgba(244, 63, 94, 0)');
       ctx.fillStyle = glowGradient;
       ctx.beginPath();
-      ctx.arc(target.x + shakeX, target.y + shakeY, target.radius * 1.5, 0, Math.PI * 2);
+      ctx.arc(target.x + shakeX, target.y + shakeY, target.radius * 2, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw target circle
-      ctx.fillStyle = '#ff6b6b';
+      // Draw outer ring
+      ctx.strokeStyle = 'rgba(244, 63, 94, 0.3)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(target.x + shakeX, target.y + shakeY, target.radius + 10, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // Draw target circle with gradient
+      const targetGradient = ctx.createRadialGradient(
+        target.x + shakeX - target.radius * 0.3, 
+        target.y + shakeY - target.radius * 0.3, 
+        0,
+        target.x + shakeX, target.y + shakeY, target.radius
+      );
+      targetGradient.addColorStop(0, '#fb7185');
+      targetGradient.addColorStop(1, '#e11d48');
+      ctx.fillStyle = targetGradient;
       ctx.beginPath();
       ctx.arc(target.x + shakeX, target.y + shakeY, target.radius, 0, Math.PI * 2);
       ctx.fill();
 
-      // Draw inner circle
-      ctx.fillStyle = '#ff4757';
-      ctx.beginPath();
-      ctx.arc(target.x + shakeX, target.y + shakeY, target.radius * 0.7, 0, Math.PI * 2);
-      ctx.fill();
-
       // Draw emotion
-      ctx.font = '48px Arial';
+      ctx.font = '36px Arial';
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
       ctx.fillText(target.emotion, target.x + shakeX, target.y + shakeY);
@@ -199,8 +218,8 @@ export default function StressToy() {
       particlesRef.current = particlesRef.current.filter(p => {
         p.x += p.vx;
         p.y += p.vy;
-        p.vy += 0.2; // gravity
-        p.life -= 0.02;
+        p.vy += 0.15; // gravity
+        p.life -= 0.025;
 
         if (p.life <= 0) return false;
 
@@ -213,12 +232,6 @@ export default function StressToy() {
 
         return true;
       });
-
-      // Draw hit counter
-      ctx.fillStyle = '#fff';
-      ctx.font = 'bold 24px Arial';
-      ctx.textAlign = 'left';
-      ctx.fillText(`Hits: ${target.hits}`, 20, 30);
 
       animationFrameRef.current = requestAnimationFrame(animate);
     };
@@ -239,22 +252,24 @@ export default function StressToy() {
     targetRef.current.emotion = '😐';
     targetRef.current.shake = 0;
     setHitCount(0);
-    setMessage('Click/tap to punch! 👊');
+    setMessage('Click or tap the target');
     particlesRef.current = [];
   }, []);
 
   return (
-    <div className="bg-gradient-to-br from-slate-800 to-slate-900 rounded-xl p-6 shadow-lg">
-      <div className="text-center mb-4">
-        <h2 className="text-2xl font-bold text-white mb-2">
-          🥊 Stress Relief Punching Bag
+    <div className="glass-card rounded-3xl p-8">
+      {/* Header */}
+      <div className="text-center mb-6">
+        <h2 className="text-xl font-semibold text-white mb-2">
+          Stress Relief
         </h2>
-        <p className="text-slate-400 text-sm">
+        <p className="text-sm text-zinc-500">
           {message}
         </p>
       </div>
 
-      <div ref={containerRef} className="rounded-lg overflow-hidden mb-4">
+      {/* Canvas */}
+      <div ref={containerRef} className="rounded-2xl overflow-hidden mb-6 bg-zinc-900/50 border border-white/5">
         <canvas
           ref={canvasRef}
           onClick={handleClick}
@@ -264,22 +279,31 @@ export default function StressToy() {
         />
       </div>
 
-      <div className="flex justify-between items-center">
-        <div className="text-slate-300">
-          Total Hits: <span className="font-bold text-white">{hitCount}</span>
+      {/* Stats bar */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <div className="text-center">
+            <p className="text-2xl font-bold text-white">{hitCount}</p>
+            <p className="text-xs text-zinc-500 uppercase tracking-wider">Hits</p>
+          </div>
         </div>
         <button
           onClick={handleReset}
-          className="px-4 py-2 bg-slate-600 hover:bg-slate-500 text-white rounded-lg transition-colors"
+          className="px-4 py-2 rounded-xl text-sm font-medium
+            bg-zinc-800 text-zinc-400 border border-white/10
+            hover:bg-zinc-700 hover:text-white transition-all duration-300"
         >
-          🔄 Reset
+          Reset
         </button>
       </div>
 
-      {/* Privacy notice */}
-      <p className="text-xs text-center text-slate-500 mt-4">
-        🔒 No interaction data is tracked or stored anywhere.
-      </p>
+      {/* Privacy badge */}
+      <div className="mt-8 flex justify-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-xs text-emerald-400">No tracking whatsoever</span>
+        </div>
+      </div>
     </div>
   );
 }

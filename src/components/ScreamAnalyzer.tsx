@@ -39,88 +39,142 @@ export default function ScreamAnalyzer() {
 
   if (!isSupported) {
     return (
-      <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-        <p className="text-yellow-800 dark:text-yellow-200">
-          Microphone access is not supported in this browser.
-        </p>
+      <div className="glass-card rounded-2xl p-6">
+        <div className="flex items-center gap-3 text-amber-400">
+          <span className="text-xl">⚠️</span>
+          <p className="text-sm">Microphone access is not supported in this browser.</p>
+        </div>
       </div>
     );
   }
 
   // Calculate visual elements based on volume
   const volumeBarWidth = Math.min(volume, 100);
-  const glowIntensity = volume / 100;
-  const pulseScale = 1 + (volume / 200);
+  const ringScale = 1 + (volume / 100) * 0.3;
+  const glowOpacity = 0.2 + (volume / 100) * 0.6;
 
   return (
-    <div className="bg-gradient-to-br from-red-50 to-orange-50 dark:from-red-900/20 dark:to-orange-900/20 rounded-xl p-6 shadow-lg">
-      <div className="text-center mb-6">
-        <h2 className="text-2xl font-bold text-red-800 dark:text-red-200 mb-2">
-          🎤 Scream Analyzer
+    <div className="glass-card rounded-3xl p-8">
+      {/* Header */}
+      <div className="text-center mb-8">
+        <h2 className="text-xl font-semibold text-white mb-2">
+          Scream Analyzer
         </h2>
-        <p className="text-sm text-red-600/70 dark:text-red-300/70">
-          Let it all out! Your scream stays in your browser.
+        <p className="text-sm text-zinc-500">
+          Let it all out. Your audio never leaves your device.
         </p>
       </div>
 
       {error && (
-        <div className="bg-red-100 dark:bg-red-900/50 border border-red-300 dark:border-red-700 rounded-lg p-3 mb-4">
-          <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
+        <div className="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/20">
+          <p className="text-red-400 text-sm">{error}</p>
         </div>
       )}
 
       {/* Main scream button */}
-      <div className="flex justify-center mb-6">
-        <button
-          onClick={isListening ? handleStop : startListening}
-          className={`
-            relative w-32 h-32 rounded-full font-bold text-white
-            transition-all duration-300 ease-out
-            ${isListening 
-              ? 'bg-gradient-to-br from-red-500 to-red-700 shadow-red-500/50' 
-              : 'bg-gradient-to-br from-red-400 to-red-600 hover:from-red-500 hover:to-red-700'
-            }
-          `}
-          style={{
-            transform: isListening ? `scale(${pulseScale})` : 'scale(1)',
-            boxShadow: isListening 
-              ? `0 0 ${30 + volume}px ${10 + volume/2}px rgba(239, 68, 68, ${0.3 + glowIntensity * 0.4})`
-              : '0 4px 15px rgba(239, 68, 68, 0.3)',
-          }}
-        >
-          {isListening ? 'STOP' : 'SCREAM!'}
-        </button>
+      <div className="flex justify-center mb-8">
+        <div className="relative">
+          {/* Animated rings when listening */}
+          {isListening && (
+            <>
+              <div 
+                className="absolute inset-0 rounded-full bg-rose-500/20 animate-ping"
+                style={{ animationDuration: '1.5s' }}
+              />
+              <div 
+                className="absolute inset-0 rounded-full border-2 border-rose-500/30"
+                style={{ transform: `scale(${ringScale})`, transition: 'transform 0.1s ease-out' }}
+              />
+            </>
+          )}
+          
+          <button
+            onClick={isListening ? handleStop : startListening}
+            className={`
+              relative w-36 h-36 rounded-full font-semibold text-white text-lg
+              transition-all duration-300 ease-out
+              ${isListening 
+                ? 'bg-gradient-to-br from-rose-500 to-pink-600' 
+                : 'bg-gradient-to-br from-zinc-700 to-zinc-800 hover:from-rose-500 hover:to-pink-600'
+              }
+            `}
+            style={{
+              boxShadow: isListening 
+                ? `0 0 ${40 + volume}px rgba(244, 63, 94, ${glowOpacity})`
+                : '0 4px 20px rgba(0, 0, 0, 0.3)',
+            }}
+          >
+            {isListening ? (
+              <span className="flex flex-col items-center">
+                <span className="text-3xl mb-1">🛑</span>
+                <span className="text-xs uppercase tracking-wider">Stop</span>
+              </span>
+            ) : (
+              <span className="flex flex-col items-center">
+                <span className="text-3xl mb-1">🎤</span>
+                <span className="text-xs uppercase tracking-wider">Start</span>
+              </span>
+            )}
+          </button>
+        </div>
       </div>
 
       {/* Volume visualization */}
       {isListening && (
-        <div className="space-y-4">
-          <div className="bg-white/50 dark:bg-black/20 rounded-full h-6 overflow-hidden">
-            <div
-              className="h-full bg-gradient-to-r from-yellow-400 via-orange-500 to-red-600 transition-all duration-75"
-              style={{ width: `${volumeBarWidth}%` }}
-            />
+        <div className="space-y-6">
+          {/* Volume bar */}
+          <div className="space-y-2">
+            <div className="flex justify-between text-xs text-zinc-500">
+              <span>Volume</span>
+              <span>{volume}%</span>
+            </div>
+            <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-orange-500 transition-all duration-75"
+                style={{ width: `${volumeBarWidth}%` }}
+              />
+            </div>
           </div>
-          
-          <div className="flex justify-between text-sm text-red-700 dark:text-red-300">
-            <span>Current: {volume}%</span>
-            <span>Peak: {peakVolume}%</span>
+
+          {/* Stats */}
+          <div className="flex justify-center gap-8">
+            <div className="text-center">
+              <p className="text-2xl font-bold text-white">{volume}%</p>
+              <p className="text-xs text-zinc-500 uppercase tracking-wider">Current</p>
+            </div>
+            <div className="text-center">
+              <p className="text-2xl font-bold text-rose-400">{peakVolume}%</p>
+              <p className="text-xs text-zinc-500 uppercase tracking-wider">Peak</p>
+            </div>
           </div>
 
           {/* Intensity feedback */}
           <div className="text-center">
-            {volume < 20 && <p className="text-gray-500">Whisper... go louder!</p>}
-            {volume >= 20 && volume < 50 && <p className="text-orange-500">Getting there...</p>}
-            {volume >= 50 && volume < 75 && <p className="text-orange-600 font-semibold">LOUDER!</p>}
-            {volume >= 75 && <p className="text-red-600 font-bold text-xl animate-pulse">YESSSSS! 🔥</p>}
+            {volume < 20 && (
+              <p className="text-zinc-500 text-sm">Whisper detected... go louder!</p>
+            )}
+            {volume >= 20 && volume < 50 && (
+              <p className="text-amber-400 text-sm">Getting warmer... 🔥</p>
+            )}
+            {volume >= 50 && volume < 75 && (
+              <p className="text-orange-400 font-medium">That&apos;s it! Keep going!</p>
+            )}
+            {volume >= 75 && (
+              <p className="text-rose-400 font-bold text-lg animate-pulse">
+                MAXIMUM RELEASE! 🌋
+              </p>
+            )}
           </div>
         </div>
       )}
 
-      {/* Privacy notice */}
-      <p className="text-xs text-center text-red-600/50 dark:text-red-300/50 mt-6">
-        🔒 Audio is analyzed in real-time only. Nothing is recorded or stored.
-      </p>
+      {/* Privacy badge */}
+      <div className="mt-8 flex justify-center">
+        <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+          <span className="text-xs text-emerald-400">Audio analyzed locally only</span>
+        </div>
+      </div>
     </div>
   );
 }

@@ -45,75 +45,81 @@ export default function Home() {
     return null;
   }
 
+  const tabs = [
+    { id: 'scream' as const, label: 'Scream', icon: '🎤', color: 'from-rose-500 to-pink-600' },
+    { id: 'vent' as const, label: 'Vent', icon: '✍️', color: 'from-violet-500 to-purple-600' },
+    { id: 'punch' as const, label: 'Punch', icon: '👊', color: 'from-amber-500 to-orange-600' },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-slate-900 to-slate-800">
-      {/* Header */}
-      <header className="py-8 px-4 text-center">
-        <h1 className="text-4xl md:text-5xl font-bold text-white mb-2">
-          😱 Scream Therapy
-        </h1>
-        <p className="text-slate-300 text-lg">
-          Release your stress. Completely private. Nothing leaves your browser.
-        </p>
-      </header>
+    <div className="min-h-screen mesh-gradient noise">
+      {/* Ambient glow orbs */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 -left-20 w-72 h-72 bg-indigo-500/20 rounded-full blur-[100px]" />
+        <div className="absolute top-3/4 -right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-[120px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-violet-500/10 rounded-full blur-[150px]" />
+      </div>
 
-      {/* Main content */}
-      <main className="max-w-4xl mx-auto px-4 pb-8">
-        {/* Tab navigation */}
-        <div className="flex justify-center mb-8">
-          <div className="bg-white/10 rounded-full p-1 flex gap-1">
-            <button
-              onClick={() => setActiveTab('scream')}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                activeTab === 'scream'
-                  ? 'bg-red-500 text-white'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              🎤 Scream
-            </button>
-            <button
-              onClick={() => setActiveTab('vent')}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                activeTab === 'vent'
-                  ? 'bg-purple-500 text-white'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              📝 Vent
-            </button>
-            <button
-              onClick={() => setActiveTab('punch')}
-              className={`px-6 py-2 rounded-full font-medium transition-all ${
-                activeTab === 'punch'
-                  ? 'bg-orange-500 text-white'
-                  : 'text-white/70 hover:text-white hover:bg-white/10'
-              }`}
-            >
-              🥊 Punch
-            </button>
+      <div className="relative z-10">
+        {/* Header */}
+        <header className="pt-16 pb-8 px-4 text-center">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 mb-6 shadow-lg shadow-indigo-500/25">
+            <span className="text-3xl">😤</span>
           </div>
-        </div>
-
-        {/* Tab content */}
-        <div className="mb-8">
-          {activeTab === 'scream' && <ScreamAnalyzer />}
-          {activeTab === 'vent' && <VentBox />}
-          {activeTab === 'punch' && <StressToy />}
-        </div>
-
-        {/* Privacy notice */}
-        <PrivacyNotice />
-
-        {/* Footer */}
-        <footer className="mt-8 text-center text-slate-400 text-sm">
-          <p>
-            Built with privacy as the core requirement.
-            <br />
-            No data ever leaves your device. 🔒
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-3 tracking-tight">
+            Scream Therapy
+          </h1>
+          <p className="text-zinc-400 text-lg max-w-md mx-auto">
+            Release your stress. Completely private.
+            <span className="text-zinc-500"> Nothing leaves your browser.</span>
           </p>
-        </footer>
-      </main>
+        </header>
+
+        {/* Main content */}
+        <main className="max-w-2xl mx-auto px-4 pb-12">
+          {/* Tab navigation */}
+          <div className="flex justify-center mb-8">
+            <div className="glass-card rounded-2xl p-1.5 flex gap-1">
+              {tabs.map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveTab(tab.id)}
+                  className={`
+                    relative px-6 py-3 rounded-xl font-medium text-sm transition-all duration-300
+                    ${activeTab === tab.id
+                      ? `bg-gradient-to-r ${tab.color} text-white shadow-lg`
+                      : 'text-zinc-400 hover:text-white hover:bg-white/5'
+                    }
+                  `}
+                >
+                  <span className="mr-2">{tab.icon}</span>
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tab content */}
+          <div className="mb-8">
+            {activeTab === 'scream' && <ScreamAnalyzer />}
+            {activeTab === 'vent' && <VentBox />}
+            {activeTab === 'punch' && <StressToy />}
+          </div>
+
+          {/* Privacy notice */}
+          <PrivacyNotice />
+
+          {/* Footer */}
+          <footer className="mt-12 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span className="text-xs text-zinc-500">
+                100% Local • Zero tracking • Privacy first
+              </span>
+            </div>
+          </footer>
+        </main>
+      </div>
     </div>
   );
 }

@@ -54,18 +54,18 @@ export default function PrivacyNotice() {
   }, [localStorageEnabled]);
 
   return (
-    <div className="bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-xl p-4 shadow-sm">
+    <div className="glass-card rounded-3xl p-6">
       {/* Main privacy statement */}
-      <div className="flex items-start gap-3">
-        <span className="text-2xl">🔒</span>
-        <div className="flex-1">
-          <h3 className="font-bold text-emerald-800 dark:text-emerald-200 mb-1">
+      <div className="flex items-start gap-4">
+        <div className="w-10 h-10 rounded-xl bg-emerald-500/20 flex items-center justify-center flex-shrink-0">
+          <span className="text-xl">🔒</span>
+        </div>
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-white mb-1">
             100% Private & Local
           </h3>
-          <p className="text-sm text-emerald-700 dark:text-emerald-300">
-            All activity happens locally in your browser.
-            No data is sent or stored on any server.
-            Refreshing the page permanently deletes everything.
+          <p className="text-sm text-zinc-400 leading-relaxed">
+            All activity happens locally in your browser. Nothing is sent to any server. Refresh to erase everything.
           </p>
         </div>
       </div>
@@ -73,57 +73,66 @@ export default function PrivacyNotice() {
       {/* Expandable details */}
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="mt-3 text-sm text-emerald-600 dark:text-emerald-400 hover:text-emerald-800 dark:hover:text-emerald-200 font-medium"
+        className="mt-4 flex items-center gap-2 text-sm text-zinc-500 hover:text-white transition-colors"
       >
-        {isExpanded ? '▼ Hide Details' : '▶ Show Privacy Details'}
+        <span className={`transition-transform ${isExpanded ? 'rotate-90' : ''}`}>▶</span>
+        {isExpanded ? 'Hide details' : 'Show privacy details'}
       </button>
 
       {isExpanded && (
-        <div className="mt-4 space-y-4 text-sm text-emerald-700 dark:text-emerald-300">
-          <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3 space-y-2">
-            <p className="font-semibold">🛡️ Privacy Guarantees:</p>
-            <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>No server-side storage or processing</li>
-              <li>No API routes or server actions</li>
-              <li>No analytics, tracking, or logging</li>
-              <li>Content Security Policy blocks all outbound connections</li>
-              <li>Audio is analyzed in real-time only, never recorded</li>
-              <li>Voice-to-text uses browser-native Web Speech API</li>
-              <li>All data is in-memory (RAM) by default</li>
-              <li>Page refresh/close wipes everything automatically</li>
+        <div className="mt-4 space-y-4">
+          {/* Privacy guarantees */}
+          <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5">
+            <p className="text-sm font-medium text-zinc-300 mb-3">Privacy Guarantees</p>
+            <ul className="space-y-2">
+              {[
+                'No server-side storage or processing',
+                'No API routes or server actions',
+                'No analytics, tracking, or logging',
+                'CSP blocks all outbound connections',
+                'Audio analyzed in real-time only',
+                'Voice-to-text uses browser API',
+                'All data in-memory by default',
+                'Auto-wipe on page refresh',
+              ].map((item, i) => (
+                <li key={i} className="flex items-center gap-2 text-sm text-zinc-400">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  {item}
+                </li>
+              ))}
             </ul>
           </div>
 
           {/* Local storage opt-in */}
-          <div className="bg-white/50 dark:bg-black/20 rounded-lg p-3">
+          <div className="p-4 rounded-2xl bg-zinc-900/50 border border-white/5">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-semibold">💾 Optional Local Persistence</p>
-                <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-1">
-                  Save vents to your browser&apos;s IndexedDB (still local-only)
+                <p className="text-sm font-medium text-zinc-300">Local Persistence</p>
+                <p className="text-xs text-zinc-500 mt-0.5">
+                  Save to IndexedDB (still local-only)
                 </p>
               </div>
               <button
                 onClick={toggleLocalStorage}
                 className={`
-                  relative w-14 h-7 rounded-full transition-colors duration-300
+                  relative w-12 h-6 rounded-full transition-colors duration-300
                   ${localStorageEnabled 
                     ? 'bg-emerald-500' 
-                    : 'bg-gray-300 dark:bg-gray-600'
+                    : 'bg-zinc-700'
                   }
                 `}
               >
                 <span
                   className={`
-                    absolute top-1 w-5 h-5 bg-white rounded-full transition-transform duration-300
-                    ${localStorageEnabled ? 'translate-x-8' : 'translate-x-1'}
+                    absolute top-1 w-4 h-4 bg-white rounded-full transition-transform duration-300
+                    ${localStorageEnabled ? 'translate-x-7' : 'translate-x-1'}
                   `}
                 />
               </button>
             </div>
             {localStorageEnabled && (
-              <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
-                ⚠️ Data will persist across sessions until you clear it or disable this option.
+              <p className="text-xs text-amber-400/80 mt-3">
+                ⚠ Data persists until you clear it
               </p>
             )}
           </div>
@@ -131,29 +140,35 @@ export default function PrivacyNotice() {
       )}
 
       {/* Panic Wipe Button */}
-      <div className="mt-4 pt-4 border-t border-emerald-200 dark:border-emerald-700">
+      <div className="mt-6 pt-6 border-t border-white/5">
         {!showWipeConfirm ? (
           <button
             onClick={() => setShowWipeConfirm(true)}
-            className="w-full py-2 px-4 bg-red-500 hover:bg-red-600 text-white rounded-lg font-medium transition-colors flex items-center justify-center gap-2"
+            className="w-full py-3 px-4 rounded-xl font-medium text-sm
+              bg-red-500/10 text-red-400 border border-red-500/20
+              hover:bg-red-500/20 transition-all duration-300
+              flex items-center justify-center gap-2"
           >
-            🚨 Panic Wipe - Delete Everything Now
+            <span>🚨</span>
+            Panic Wipe – Delete Everything
           </button>
         ) : (
-          <div className="space-y-2">
-            <p className="text-center text-red-600 dark:text-red-400 font-medium">
+          <div className="space-y-3">
+            <p className="text-center text-sm text-zinc-400">
               Are you sure? This cannot be undone.
             </p>
-            <div className="flex gap-2">
+            <div className="flex gap-3">
               <button
                 onClick={handlePanicWipe}
-                className="flex-1 py-2 px-4 bg-red-600 hover:bg-red-700 text-white rounded-lg font-medium transition-colors"
+                className="flex-1 py-3 px-4 rounded-xl font-medium text-sm
+                  bg-red-500 text-white hover:bg-red-600 transition-colors"
               >
-                Yes, Wipe Everything
+                Yes, delete
               </button>
               <button
                 onClick={() => setShowWipeConfirm(false)}
-                className="flex-1 py-2 px-4 bg-gray-300 hover:bg-gray-400 dark:bg-gray-600 dark:hover:bg-gray-500 text-gray-800 dark:text-white rounded-lg font-medium transition-colors"
+                className="flex-1 py-3 px-4 rounded-xl font-medium text-sm
+                  bg-zinc-800 text-zinc-300 hover:bg-zinc-700 transition-colors"
               >
                 Cancel
               </button>
@@ -162,8 +177,8 @@ export default function PrivacyNotice() {
         )}
 
         {wiped && (
-          <p className="text-center text-emerald-600 dark:text-emerald-400 font-medium mt-2 animate-pulse">
-            ✅ All data has been wiped!
+          <p className="text-center text-sm text-emerald-400 mt-3 animate-pulse">
+            ✓ All data wiped
           </p>
         )}
       </div>
